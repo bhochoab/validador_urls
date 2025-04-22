@@ -1,0 +1,4 @@
+url,status
+https://www.google.com,200
+https://www.github.com,200
+https://noexiste.url.fake,"HTTPSConnectionPool(host='noexiste.url.fake', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(""<urllib3.connection.HTTPSConnection object at 0x00000131E66D8350>: Failed to resolve 'noexiste.url.fake' ([Errno 11001] getaddrinfo failed)""))"
