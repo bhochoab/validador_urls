@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GITHUB_CREDENTIALS = 'github-token'
-        SONARQUBE_SERVER = 'SonarQube-Server'
+        SONARQUBE_SERVER = 'SonarCloud'
         SONAR_HOST_URL = 'http://sonarqube.bch.bancodechile.cl:9002'
         PROJECT_KEY = 'mi-proyecto-python'
         PROJECT_NAME = 'Mi Proyecto Python'
@@ -20,7 +20,7 @@ pipeline {
 
         stage('Verificar o crear proyecto en SonarQube') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
                     bat """
                         curl -s -u %SONAR_TOKEN%: %SONAR_HOST_URL%/api/projects/search?projects=%PROJECT_KEY% > result.json
                         findstr /C:"\"key\":\"%PROJECT_KEY%\"" result.json > nul
@@ -38,7 +38,7 @@ pipeline {
         stage('Análisis SonarQube') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
                         bat """
                             sonar-scanner ^
                             -Dsonar.projectKey=%PROJECT_KEY% ^
