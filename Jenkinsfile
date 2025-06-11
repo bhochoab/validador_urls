@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         GITHUB_CREDENTIALS = 'github-token'
-        SONARCLOUD_SERVER = 'SonarCloud'
-        SONARCLOUD_URL = 'https://sonarcloud.io'
+        SONARQUBE_SERVER = 'SonarQube-Server'
+        SONARQUBE_URL = 'http://sonarqube.bch.bancodechile.cl:9002'
         PROJECT_KEY = 'mi-proyecto-python'
         PROJECT_NAME = 'Mi Proyecto Python'
     }
@@ -18,34 +18,34 @@ pipeline {
             }
         }
 
-        stage('Verificar o crear proyecto en SonarCloud') {
+        stage('Verificar proyecto en SonarQube') {
             steps {
-                withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     bat """
-                        curl -s -u %SONAR_TOKEN%: %SONARCLOUD_URL%/api/projects/search?projects=%PROJECT_KEY% > result.json
+                        echo Verificando si el proyecto existe en SonarQube...
+                        curl -s -H "Authorization: Bearer %SONAR_TOKEN%" "%SONARQUBE_URL%/api/projects/search?projects=%PROJECT_KEY%" > result.json
                         findstr /C:"\"key\":\"%PROJECT_KEY%\"" result.json > nul
                         if errorlevel 1 (
-                            echo Proyecto no existe. Creando...
-                            curl -X POST -u %SONAR_TOKEN%: %SONARCLOUD_URL%/api/projects/create -d "name=%PROJECT_NAME%" -d "project=%PROJECT_KEY%" -d "organization=Sonar-bhochoab"
+                            echo Proyecto NO existe en SonarQube. Debe crearse manualmente.
                         ) else (
-                            echo Proyecto ya existe en SonarCloud.
+                            echo Proyecto ya existe en SonarQube.
                         )
+                        del result.json
                     """
                 }
             }
         }
 
-        stage('Análisis SonarCloud') {
+        stage('Analizar con SonarQube') {
             steps {
-                withSonarQubeEnv("${SONARCLOUD_SERVER}") {
-                    withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
                         bat """
                             sonar-scanner ^
                             -Dsonar.projectKey=%PROJECT_KEY% ^
-                            -Dsonar.organization=tu-organizacion ^
+                            -Dsonar.projectName="%PROJECT_NAME%" ^
                             -Dsonar.sources=. ^
                             -Dsonar.language=py ^
-                            -Dsonar.host.url=%SONARCLOUD_URL% ^
                             -Dsonar.login=%SONAR_TOKEN%
                         """
                     }
