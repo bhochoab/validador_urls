@@ -1,15 +1,11 @@
 pipeline {
     agent any
 
-    tools {
-        sonarQubeScanner 'SonarScanner'
-    }
-
     environment {
         GITHUB_CREDENTIALS = 'github-token'
         SONARQUBE_SERVER = 'SonarQube-Server'
         SONAR_TOKEN = credentials('sonarqube-token')
-        SONAR_HOST_URL = 'http://tu-servidor-sonar:9000'
+        SONAR_HOST_URL = 'http://sonarqube.bch.bancodechile.cl:9002/'
         PROJECT_KEY = 'mi-proyecto-python'
         PROJECT_NAME = 'Mi Proyecto Python'
     }
@@ -18,7 +14,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git credentialsId: "${GITHUB_CREDENTIALS}",
-                    url: 'https://github.com/usuario/repositorio.git',
+                    url: 'https://github.com/bhochoab/validador_urls.git',
                     branch: 'main'
             }
         }
