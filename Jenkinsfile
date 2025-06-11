@@ -26,7 +26,7 @@ pipeline {
                         findstr /C:"\"key\":\"%PROJECT_KEY%\"" result.json > nul
                         if errorlevel 1 (
                             echo Proyecto no existe. Creando...
-                            curl -X POST -u %SONAR_TOKEN%: %SONARCLOUD_URL%/api/projects/create -d "name=%PROJECT_NAME%" -d "project=%PROJECT_KEY%" -d "organization=tu-organizacion"
+                            curl -X POST -u %SONAR_TOKEN%: %SONARCLOUD_URL%/api/projects/create -d "name=%PROJECT_NAME%" -d "project=%PROJECT_KEY%" -d "organization=sonar-bhochoab"
                         ) else (
                             echo Proyecto ya existe en SonarCloud.
                         )
