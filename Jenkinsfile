@@ -2,11 +2,8 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_CREDENTIALS = 'github-token'
-        SONARQUBE_SERVER = 'SonarQube-Server'
-        SONARQUBE_URL = 'http://sonarqube.bch.bancodechile.cl:9002'
-        PROJECT_KEY = 'mi-proyecto-python'
-        PROJECT_NAME = 'Mi Proyecto Python'
+        SONARQUBE_SERVER = 'BCH SonarQube-Server' // nombre configurado en Jenkins
+        SCANNER_TOOL = 'SonarScanner'  // nombre del scanner configurado
     }
 
     stages {
@@ -18,39 +15,32 @@ pipeline {
             }
         }
 
-        stage('Verificar proyecto en SonarQube') {
+        stage('SonarQube Scan') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    bat """
-                        echo Verificando si el proyecto existe en SonarQube...
-                        curl -s -H "Authorization: Bearer %SONAR_TOKEN%" "%SONARQUBE_URL%/api/projects/search?projects=%PROJECT_KEY%" > result.json
-                        findstr /C:"\"key\":\"%PROJECT_KEY%\"" result.json > nul
-                        if errorlevel 1 (
-                            echo Proyecto NO existe en SonarQube. Debe crearse manualmente.
-                        ) else (
-                            echo Proyecto ya existe en SonarQube.
-                        )
-                        del result.json
-                    """
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    script {
+                        def scannerHome = tool name: "${SCANNER_TOOL}", type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
             }
         }
 
-        stage('Analizar con SonarQube') {
+        stage('Quality Gate') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                        bat """
-                            sonar-scanner ^
-                            -Dsonar.projectKey=%PROJECT_KEY% ^
-                            -Dsonar.projectName="%PROJECT_NAME%" ^
-                            -Dsonar.sources=. ^
-                            -Dsonar.language=py ^
-                            -Dsonar.login=%SONAR_TOKEN%
-                        """
-                    }
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Análisis exitoso y Quality Gate aprobado.'
+        }
+        failure {
+            echo '❌ Falló el análisis o el Quality Gate.'
         }
     }
 }
