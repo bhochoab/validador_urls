@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_SERVER = 'BCH SonarQube-Server' // nombre configurado en Jenkins
-        SCANNER_TOOL = 'SonarScanner'  // nombre del scanner configurado
+        SONARQUBE_SERVER = 'SonarCloud' // nuevo nombre configurado en Jenkins
+        SCANNER_TOOL = 'SonarScanner'  // sigue siendo el scanner local
     }
 
     stages {
@@ -15,16 +15,16 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
-    steps {
-        withSonarQubeEnv("${SONARQUBE_SERVER}") {
-            script {
-                def scannerHome = tool name: "${SCANNER_TOOL}", type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                bat "${scannerHome}\\bin\\sonar-scanner.bat"
+        stage('SonarCloud Scan') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    script {
+                        def scannerHome = tool name: "${SCANNER_TOOL}", type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                        bat "${scannerHome}\\bin\\sonar-scanner.bat"
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Quality Gate') {
             steps {
