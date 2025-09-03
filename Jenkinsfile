@@ -9,9 +9,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: "${sonarqube-token}",
+                git credentialsId: "${GITHUB_CREDENTIALS}",
                     url: 'https://github.com/bhochoab/validador_urls.git',
-                    branch: 'develop'
+                    branch: 'main'
             }
         }
 
