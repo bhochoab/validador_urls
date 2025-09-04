@@ -15,16 +15,21 @@ pipeline {
             }
         }
 
-        stage('SonarCloud Scan') {
+        stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     script {
                         def scannerHome = tool name: "${SCANNER_TOOL}", type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                        bat "${scannerHome}\\bin\\sonar-scanner.bat"
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=mi-proyecto-python \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://sonarqube:9000 \
+                            -Dsonar.login=${SONARQUBE_TOKEN}"
                     }
                 }
             }
         }
+
     }
     post {
         success {
