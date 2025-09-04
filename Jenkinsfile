@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_SERVER = 'SonarCloud' // nuevo nombre configurado en Jenkins
+        SONARQUBE_SERVER = 'POC-Sonar' // nuevo nombre configurado en Jenkins
         SCANNER_TOOL = 'SonarScanner'  // sigue siendo el scanner local
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-token',
+                git credentialsId: 'GITHUB-Token',
                     url: 'https://github.com/bhochoab/validador_urls.git',
                     branch: 'develop'
             }
