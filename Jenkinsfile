@@ -24,7 +24,7 @@ pipeline {
                             -Dsonar.projectKey=mi-proyecto-python \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=http://sonarqube:9000 \
-                            -Dsonar.login=${SONARQUBE_TOKEN}"
+                            -Dsonar.login=${POC-Sonar-token}"
                     }
                 }
             }
